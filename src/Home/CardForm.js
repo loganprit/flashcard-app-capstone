@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function CardForm({ initialCard, onSubmit, onCancel }) {
     const [card, setCard] = useState(initialCard);
+  
+  useEffect(() => {
+    setCard(initialCard);
+  }, [initialCard])
   
     const handleChange = (event) => {
       const { name, value } = event.target;
