@@ -68,6 +68,7 @@ function EditCard() {
             <h2>Edit Card</h2>
 
             <CardForm
+                initialCard={card}             
                 onSubmit={(cardData) => handleSubmit({ ...cardData, id: cardId, deckId })}
                 onCancel={handleCancel}
             />
