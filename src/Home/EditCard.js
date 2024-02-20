@@ -34,10 +34,10 @@ function EditCard() {
         return () => abortController.abort();
     }, [deckId]);
 
-    const handleSubmit = async (updatedCard) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            await updateCard(updatedCard);
+            await updateCard(event);
             history.push(`/decks/${deckId}`);
         } catch (error) {
             console.error("Error updating card:", error);
