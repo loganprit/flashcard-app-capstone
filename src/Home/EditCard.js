@@ -11,69 +11,68 @@ import { readDeck, readCard, updateCard } from "../utils/api";
 import CardForm from "./CardForm";
 
 function EditCard() {
-    const { deckId, cardId } = useParams();
-    const history = useHistory();
-    const [deck, setDeck] = useState({ name: "", description: "" });
-    const [card, setCard] = useState({ front: "", back: "" });
+  const { deckId, cardId } = useParams();
+  const history = useHistory();
+  const [deck, setDeck] = useState({ name: "", description: "" });
+  const [card, setCard] = useState({ front: "", back: "" });
 
-    useEffect(() => {
-        const abortController = new AbortController();
+  useEffect(() => {
+    const abortController = new AbortController();
 
-        async function loadedDeckAndCard() {
-            try {
-                const loadedDeck = await readDeck(deckId, abortController.signal);
-                setDeck(loadedDeck);
-                const loadedCard = await readCard(cardId, abortController.signal);
-                setCard(loadedCard);
-            } catch (error) {
-                console.error("Error loading deck or card:", error);
-            }
-        }
+    async function loadedDeckAndCard() {
+      try {
+        const loadedDeck = await readDeck(deckId, abortController.signal);
+        setDeck(loadedDeck);
+        const loadedCard = await readCard(cardId, abortController.signal);
+        setCard(loadedCard);
+      } catch (error) {
+        console.error("Error loading deck or card:", error);
+      }
+    }
 
-        loadedDeckAndCard();
-        return () => abortController.abort();
-    }, [deckId]);
+    loadedDeckAndCard();
+    return () => abortController.abort();
+  }, [deckId]);
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        try {
-            await updateCard(event);
-            history.push(`/decks/${deckId}`);
-        } catch (error) {
-            console.error("Error updating card:", error);
-        }
-    };
+  const handleSubmit = async (cardData) => {
+    try {
+      await updateCard({ ...cardData, id: cardId, deckId: deck.id });
+      history.push(`/decks/${deckId}`);
+    } catch (error) {
+      console.error("Error updating card:", error);
+    }
+  };
 
-    const handleCancel = () => {
-        history.push(`/decks/${deckId}`);
-    };
+  const handleCancel = () => {
+    history.push(`/decks/${deckId}`);
+  };
 
-    return (
-        <div>
-            {/* Breadcrumb navigation */}
-            <nav aria-label="breadcrumb">
-                <ol className="breadcrumb">
-                    <li className="breadcrumb-item">
-                        <Link to="/">Home</Link>
-                    </li>
-                    <li className="breadcrumb-item">
-                        <Link to={`/decks/${deckId}`}>{deck.name}</Link>
-                    </li>
-                    <li className="breadcrumb-item active" aria-current="page">
-                        Edit Card {cardId}
-                    </li>
-                </ol>
-            </nav>
+  return (
+    <div>
+      {/* Breadcrumb navigation */}
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item">
+            <Link to="/">Home</Link>
+          </li>
+          <li className="breadcrumb-item">
+            <Link to={`/decks/${deckId}`}>{deck.name}</Link>
+          </li>
+          <li className="breadcrumb-item active" aria-current="page">
+            Edit Card {cardId}
+          </li>
+        </ol>
+      </nav>
 
-            <h2>Edit Card</h2>
+      <h2>Edit Card</h2>
 
-            <CardForm
-                initialCard={card}             
-                onSubmit={(cardData) => handleSubmit({ ...cardData, id: cardId, deckId })}
-                onCancel={handleCancel}
-            />
-        </div>
-    );
+      <CardForm
+        initialCard={card}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+      />
+    </div>
+  );
 }
 
 export default EditCard;
