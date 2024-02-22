@@ -11,57 +11,77 @@ import { readDeck, createCard } from "../utils/api";
 import CardForm from "./CardForm";
 
 function AddCard() {
-    const { deckId } = useParams();
-    const history = useHistory();
-    const [deck, setDeck] = useState({ name: "", description: "" });
-    const initialCard = { front: "", back: "" };
+  const { deckId } = useParams();
+  const history = useHistory();
+  const [deck, setDeck] = useState({ name: "", description: "" });
+  const [card, setCard] = useState({ front: "", back: "" });
 
-    useEffect(() => {
-        const abortController = new AbortController();
+  useEffect(() => {
+    const abortController = new AbortController();
 
-        async function loadDeck() {
-            try {
-                const loadedDeck = await readDeck(deckId, abortController.signal);
-                setDeck(loadedDeck);
-            } catch (error) {
-                console.error("Error loading deck:", error);
-            }
-        }
+    async function loadDeck() {
+      try {
+        const loadedDeck = await readDeck(deckId, abortController.signal);
+        setDeck(loadedDeck);
+      } catch (error) {
+        console.error("Error loading deck:", error);
+      }
+    }
 
-        loadDeck();
-        return () => abortController.abort();
-    }, [deckId]);
+    loadDeck();
+    return () => abortController.abort();
+  }, [deckId]);
 
-    const handleSubmit = async (card) => {
-        await createCard(deckId, card);
-        history.push(`/decks/${deckId}`);
-    };
+  const handleChange = ({ target }) => {
+    setCard({ ...card, [target.name]: target.value }); // Update the card state
+  };
 
-    return (
-        <div>
-            <nav aria-label="breadcrumb">
-                <ol className="breadcrumb">
-                    <li className="breadcrumb-item">
-                        <Link to="/">Home</Link>
-                    </li>
-                    <li className="breadcrumb-item">
-                        <Link to={`/decks/${deckId}`}>{deck.name}</Link>
-                    </li>
-                    <li className="breadcrumb-item active" aria-current="page">
-                        Add Card
-                    </li>
-                </ol>
-            </nav>
+  const handleSave = async (newCard) => {
+    await createCard(deckId, newCard);
+    setCard({ front: "", back: "" }); // Reset the form to initial state for a new card
+  };
 
-            <h2>{deck.name}: Add Card</h2>
+  const handleCancel = () => {
+    history.push(`/decks/${deckId}`); // Redirect to the Deck screen
+  };
 
-            <CardForm
-                initialCard={initialCard}
-                onSubmit={handleSubmit}
-                onCancel={() => history.push(`/decks/${deckId}`)}
-            />
-        </div>
-    );
+  const handleDone = async () => {
+    // If there's content in either the front or back of the card, save it before exiting.
+    if (card.front.trim() || card.back.trim()) {
+      await handleSave(card);
+    }
+
+    // After saving, redirect to the Deck screen
+    handleCancel();
+  };
+
+  return (
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item">
+            <Link to="/">Home</Link>
+          </li>
+          <li className="breadcrumb-item">
+            <Link to={`/decks/${deckId}`}>{deck.name}</Link>
+          </li>
+          <li className="breadcrumb-item active" aria-current="page">
+            Add Card
+          </li>
+        </ol>
+      </nav>
+
+      <h2>{deck.name}: Add Card</h2>
+
+      <CardForm
+        card={card}
+        onChange={handleChange}
+        onSave={handleSave}
+        onDone={handleDone}
+        onCancel={handleCancel}
+      />
+    </div>
+  );
 }
 
 export default AddCard;

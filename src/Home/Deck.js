@@ -6,12 +6,13 @@ Description: Shows all of the information about a specified deck with options to
 */
 
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
 import { readDeck, deleteDeck, deleteCard } from "../utils/api";
 
 function Deck() {
   const { deckId } = useParams();
   const [deck, setDeck] = useState({});
+  const history = useHistory();
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -34,8 +35,13 @@ function Deck() {
     if (
       window.confirm("Delete this deck? You will not be able to recover it.")
     ) {
-      await deleteDeck(deckId);
-      // Redirect user after deletion
+      try {
+        await deleteDeck(deckId);
+        // Redirect user after deletion
+        history.push("/");
+      } catch (error) {
+        console.error("Error deleting deck:", error);
+      }
     }
   };
 

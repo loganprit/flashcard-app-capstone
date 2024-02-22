@@ -19,10 +19,13 @@ function EditCard() {
   useEffect(() => {
     const abortController = new AbortController();
 
-    async function loadedDeckAndCard() {
+    async function loadDeckAndCard() {
       try {
+        // Load the deck
         const loadedDeck = await readDeck(deckId, abortController.signal);
         setDeck(loadedDeck);
+
+        // Load the card
         const loadedCard = await readCard(cardId, abortController.signal);
         setCard(loadedCard);
       } catch (error) {
@@ -30,17 +33,17 @@ function EditCard() {
       }
     }
 
-    loadedDeckAndCard();
+    loadDeckAndCard();
     return () => abortController.abort();
-  }, [deckId]);
+  }, [deckId, cardId]);
 
-  const handleSubmit = async (cardData) => {
-    try {
-      await updateCard({ ...cardData, id: cardId, deckId: deck.id });
-      history.push(`/decks/${deckId}`);
-    } catch (error) {
-      console.error("Error updating card:", error);
-    }
+  const handleChange = ({ target }) => {
+    setCard({ ...card, [target.name]: target.value });
+  };
+
+  const handleSave = async (cardData) => {
+    await updateCard(cardData);
+    history.push(`/decks/${deckId}`);
   };
 
   const handleCancel = () => {
@@ -67,9 +70,11 @@ function EditCard() {
       <h2>Edit Card</h2>
 
       <CardForm
-        initialCard={card}
-        onSubmit={handleSubmit}
+        card={card}
+        onChange={handleChange}
+        onSave={handleSave}
         onCancel={handleCancel}
+        showDoneButton={false}
       />
     </div>
   );

@@ -1,20 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 
-function CardForm({ initialCard, onSubmit, onCancel }) {
-  const [card, setCard] = useState(initialCard);
-
-  useEffect(() => {
-    setCard(initialCard);
-  }, [initialCard]);
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setCard({ ...card, [name]: value });
-  };
-
+function CardForm({
+  card,
+  onChange,
+  onSave,
+  onDone,
+  onCancel,
+  showDoneButton = true,
+}) {
   const handleSubmit = (event) => {
     event.preventDefault();
-    onSubmit(card);
+    onSave(card);
   };
 
   return (
@@ -28,7 +24,7 @@ function CardForm({ initialCard, onSubmit, onCancel }) {
           name="front"
           className="form-control"
           value={card.front}
-          onChange={handleChange}
+          onChange={onChange}
           rows="3"
           required
         ></textarea>
@@ -42,7 +38,7 @@ function CardForm({ initialCard, onSubmit, onCancel }) {
           name="back"
           className="form-control"
           value={card.back}
-          onChange={handleChange}
+          onChange={onChange}
           rows="3"
           required
         ></textarea>
@@ -54,9 +50,14 @@ function CardForm({ initialCard, onSubmit, onCancel }) {
       >
         Cancel
       </button>
-      <button type="submit" className="btn btn-primary">
-        Submit
+      <button type="submit" onClick={onChange} className="btn btn-primary mr-2">
+        Save
       </button>
+      {showDoneButton && (
+        <button type="button" onClick={onDone} className="btn btn-secondary">
+          Done
+        </button>
+      )}
     </form>
   );
 }
